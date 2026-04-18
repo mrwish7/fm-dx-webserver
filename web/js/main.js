@@ -233,20 +233,20 @@ $(document).ready(function () {
             return;
         }
         
-        if (parsedData.txInfo.dist > 700) {
+        if (parsedData.txInfo.distanceKm > 700) {
             $('.log-fmlist .mini-popup-content').addClass('show'); // Show popup if no valid choice
             
             $('.log-fmlist-sporadice').off('click').on('click', function () {
                 localStorage.setItem(logKey, './log_fmlist?type=sporadice');
                 localStorage.setItem(logTimestampKey, now);
-                if(parsedData.txInfo.dist > 700) sendLog('./log_fmlist?type=sporadice');
+                if(parsedData.txInfo.distanceKm > 700) sendLog('./log_fmlist?type=sporadice');
                 $('.log-fmlist .mini-popup-content').removeClass('show');
             });
             
             $('.log-fmlist-tropo').off('click').on('click', function () {
                 localStorage.setItem(logKey, './log_fmlist?type=tropo');
                 localStorage.setItem(logTimestampKey, now);
-                if(parsedData.txInfo.dist > 700) sendLog('./log_fmlist?type=tropo');
+                if(parsedData.txInfo.distanceKm > 700) sendLog('./log_fmlist?type=tropo');
                 $('.log-fmlist .mini-popup-content').removeClass('show');
             });
         } else {
@@ -1020,18 +1020,18 @@ const updateDataElements = throttle(function(parsedData) {
     } else {
         $dataBwInput.val($('.data-bw li[data-value="' + parsedData.bw + '"]').first().text());
     }
-    
-    if (parsedData.txInfo.tx.length > 1) {
-        updateTextIfChanged($('#data-station-name'), parsedData.txInfo.tx.replace(/%/g, '%25'));
+
+    if (parsedData.txInfo.station.length > 1) {
+        updateTextIfChanged($('#data-station-name'), parsedData.txInfo.station.replace(/%/g, '%25'));
         updateTextIfChanged($('#data-station-erp'), parsedData.txInfo.erp);
-        updateTextIfChanged($('#data-station-city'), parsedData.txInfo.city);
+        updateTextIfChanged($('#data-station-city'), parsedData.txInfo.name);
         updateTextIfChanged($('#data-station-itu'), parsedData.txInfo.itu);
         updateTextIfChanged($('#data-station-pol'), parsedData.txInfo.pol);
-        updateHtmlIfChanged($('#data-station-azimuth'), parsedData.txInfo.azi + '°');
-        updateHtmlIfChanged($('#data-station-others'), parsedData.txInfo.otherMatches.length > 0 ? ('<span>+' + parsedData.txInfo.otherMatches.length +'</span>') : '');
+        updateHtmlIfChanged($('#data-station-azimuth'), parsedData.txInfo.azimuth.toFixed(0) + '°');
+        updateHtmlIfChanged($('#data-station-others'), parsedData.txInfoOthers.length > 0 ? ('<span>+' + parsedData.txInfoOthers.length +'</span>') : '');
         updateDatasetValIfChanged($('#data-station-container'), "data-score", parsedData.txInfo.score);
-        const txDistance = localStorage.getItem('imperialUnits') == "true" ? (Number(parsedData.txInfo.dist) * 0.621371192).toFixed(0) + " mi" : parsedData.txInfo.dist + " km";
-        const altTxInfo = buildAltTxList(parsedData.txInfo.otherMatches);
+        const txDistance = localStorage.getItem('imperialUnits') == "true" ? (Number(parsedData.txInfo.distanceKm) * 0.621371192).toFixed(0) + " mi" : parsedData.txInfo.distanceKm.toFixed(0) + " km";
+        const altTxInfo = buildAltTxList(parsedData.txInfoOthers);
         updateHtmlIfChanged($('#alternative-txes'), altTxInfo);
         updateTextIfChanged($('#data-station-distance'), txDistance);
         $dataStationContainer.css('display', 'block');
@@ -1039,12 +1039,12 @@ const updateDataElements = throttle(function(parsedData) {
         $dataStationContainer.removeAttr('style');
     }
     
-    if(parsedData.txInfo.tx.length > 1 && parsedData.txInfo.dist > 150 && parsedData.txInfo.dist < 4000) {
+    if(parsedData.txInfo.station.length > 1 && parsedData.txInfo.distanceKm > 150 && parsedData.txInfo.distanceKm < 4000) {
         $('.log-fmlist').removeAttr('disabled').removeClass('btn-disabled cursor-disabled');
     } else {
         $('.log-fmlist').attr('disabled', 'true').addClass('btn-disabled cursor-disabled');
     }
-    updateHtmlIfChanged($('#data-regular-pi'), parsedData.txInfo.reg === true ? parsedData.txInfo.pi : '&nbsp;');
+    updateHtmlIfChanged($('#data-regular-pi'), parsedData.txInfo.detectedByPireg === true ? parsedData.txInfo.pi : '&nbsp;');
     
     if (updateCounter % 8 === 0) {
         $dataTp.html(parsedData.tp === 0 ? "<span class='opacity-half'>TP</span>" : "TP");

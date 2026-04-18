@@ -167,6 +167,11 @@ function isCityInState(lat, lon, boundingBox) {
            lon >= boundingBox.minLon && lon <= boundingBox.maxLon;
 }
 
+// Function to check if co-ordinates are within a box around ~2500km of the USA
+function isWithin2500kmOfUSA(lat, lon) {
+    return lat >= -3.6 && lat <= 90 && lon >= -180 && lon <= -44.4;
+}
+
 // Function to check if a city (lat, lon) is inside any US state and return the state name
 function getStateForCoordinates(lat, lon) {
     if (!usStatesGeoJson) return null;
@@ -242,7 +247,7 @@ function evaluateStation(station, esMode) {
 
 // Fetch data from maps
 async function fetchTx(freq, piCode, rdsPs) {
-    let match = null;
+    let match = [];
     let multiMatches = [];
     const now = Date.now();
     // Fetch TX database if the next fetch time has passed, as long as we weren't still waiting.
@@ -321,46 +326,32 @@ async function fetchTx(freq, piCode, rdsPs) {
         }
         // Sort by score in descending order
         filteredLocations.sort((a, b) => b.score - a.score);
-        match = filteredLocations[0];
+
         // Have a maximum of 10 extra matches and remove any with less than 1/10 of the winning score
-        multiMatches = filteredLocations
-            .slice(1, 11)
-            .filter(obj => obj.score >= (match.score / 10));
+        const scoreThreshold = filteredLocations[0].score/10;
+        
+        for (const loc of filteredLocations) {
+            if (loc.score < scoreThreshold) break;
+            match.push(loc)
+        }
     } else if (filteredLocations.length === 1) {
-        match = filteredLocations[0];
-        match.score = 1;
+        match = filteredLocations;
+        match[0].score = 1;
     }
 
-    if (match) {
-        if (match.itu === 'USA') {
-            const state = getStateForCoordinates(match.lat, match.lon);
-            if (state) {
-                match.state = state;  // Add state to matchingCity
+    if (match.length > 0) {
+        if (isWithin2500kmOfUSA(Latitude, Longitude)) for (const m of match) {
+            if (m.itu === 'USA') {
+                const state = getStateForCoordinates(m.lat, m.lon);
+                if (state) {
+                    m.state = state;
+                }
             }
         }
-        const result = {
-            station: match.detectedByPireg
-            ? `${match.station.replace("R.", "Radio ")}${match.regname ? ' ' + match.regname : ''}`
-            : match.station.replace("R.", "Radio "),
-            pol: match.pol.toUpperCase(),
-            erp: match.erp && match.erp > 0 ? match.erp : '?',
-            city: match.name,
-            itu: match.state ? match.state + ', ' + match.itu : match.itu,
-            distance: match.distanceKm.toFixed(0),
-            azimuth: match.azimuth.toFixed(0),
-            id: match.id,
-            pi: match.pi,
-            foundStation: true,
-            reg: match.detectedByPireg,
-            score: match.score,
-            others: multiMatches.slice(),
-        };
-        filteredLocations.length = 0;
-        multiMatches.length = 0;
-        return result;
+        return match;
     } else {
-        filteredLocations.length = 0;
-        multiMatches.length = 0;
+        // filteredLocations.length = 0;
+        // multiMatches.length = 0;
         return Promise.resolve();
     }
 }

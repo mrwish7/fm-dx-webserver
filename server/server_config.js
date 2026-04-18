@@ -32,7 +32,8 @@ let serverConfig = {
     bgImage: "",
     rdsMode: false,
     rdsTimeout: 0,
-    txIdAlgorithm: 0
+    txIdAlgorithm: 0,
+    txOverrides: []
   },
   xdrd: {
     wirelessConnection: true,

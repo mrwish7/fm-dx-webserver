@@ -399,7 +399,7 @@ function canLog(id) {
 }
 
 router.get('/log_fmlist', (req, res) => {
-    if (dataHandler.dataToSend.txInfo.tx.length === 0) {
+    if (dataHandler.dataToSend.txInfo.station.length === 0) {
         res.status(500).send('No suitable transmitter to log.');
         return;
     }
@@ -439,7 +439,7 @@ router.get('/log_fmlist', (req, res) => {
         client: {
             request_ip: clientIp
         },
-        type: (req.query.type && dataHandler.dataToSend.txInfo.dist > 700) ? req.query.type : 'tropo',
+        type: (req.query.type && dataHandler.dataToSend.txInfo.distanceKm > 700) ? req.query.type : 'tropo',
         log_msg: "Logged PS: " + dataHandler.dataToSend.ps.replace(/\s+/g, '_') + ", PI: " + dataHandler.dataToSend.pi + ", Signal: " + (dataHandler.dataToSend.sig - 11.25).toFixed(0) + " dBµV",
     });
 
