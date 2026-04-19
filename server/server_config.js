@@ -33,7 +33,7 @@ let serverConfig = {
     rdsMode: false,
     rdsTimeout: 0,
     txIdAlgorithm: 0,
-    txOverrides: []
+    txOverrides: {}
   },
   xdrd: {
     wirelessConnection: true,

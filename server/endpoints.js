@@ -301,6 +301,21 @@ router.get('/removeFromBanlist', (req, res) => {
     res.json({ success: true, message: 'IP address removed from banlist.' });
 });
 
+router.get('/setTxOverride', (req, res) => {
+    if(!req.session.isAdminAuthenticated) return;
+
+    const key = req.query.key;
+    const id = req.query.id;
+    
+    if (id) {
+        serverConfig.webserver.txOverrides[key] = parseInt(id);
+    } else {
+        delete serverConfig.webserver.txOverrides[key];
+    }
+    configSave();
+    
+    res.json({ success: true, message: 'TX Override updated.' });
+});
 
 router.post('/saveData', (req, res) => {
     const data = req.body;

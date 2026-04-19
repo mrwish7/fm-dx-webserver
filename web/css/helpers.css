@@ -144,6 +144,10 @@
     background-color: var(--color-2-transparent);
 }
 
+.alt-tx-selected {
+    background-color: var(--color-2-transparent) !important;
+}
+
 .text-center {
     text-align: center;
 }

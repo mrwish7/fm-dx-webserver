@@ -423,8 +423,8 @@ function handleData(wss, receivedData, rdsWss) {
         if (currentTx.length === 1) {
           dataToSend.txInfo = currentTx[0];
         } else {
-          if (dataToSend.freq+dataToSend.pi in serverConfig.webserver.txOverrides) {
-            const targetId = serverConfig.webserver.txOverrides[dataToSend.freq+dataToSend.pi];
+          if (parseFloat(dataToSend.freq).toFixed(1)+dataToSend.pi in serverConfig.webserver.txOverrides) {
+            const targetId = serverConfig.webserver.txOverrides[parseFloat(dataToSend.freq).toFixed(1)+dataToSend.pi];
             const matchIndex = currentTx.findIndex(tx => tx.id === targetId);
             const idx = matchIndex !== -1 ? matchIndex : 0;
             dataToSend.txInfo = currentTx[idx];

@@ -280,6 +280,41 @@ $(document).ready(function () {
         }
     });
 
+    $("#alternative-txes").on("click", ".alt-tx-item", function () {
+      $(".alt-tx-item").removeClass("alt-tx-selected");
+      $(this).addClass("alt-tx-selected");
+      selectedAltTxId = parseInt($(this).data("id"), 10);
+    });
+
+    $("#btn-set-override").on("click", function () {
+      const $selected = $(".alt-tx-item.alt-tx-selected");
+      if (!$selected.length) return;
+      const key = $selected.data("key");
+      const id = $selected.data("id");
+      const dataToSend = { key: key, id: id };
+      $.ajax({
+        url: "./setTxOverride",
+        type: "GET",
+        data: dataToSend,
+      }).done(function() {
+        tuneTo(Number(getCurrentFreq()));
+      });
+    });
+
+    $("#btn-clear-override").on("click", function () {
+      $(".alt-tx-item").removeClass("alt-tx-selected");
+      const key = $(".alt-tx-item").data("key");
+      selectedAltTxId = null;
+      const dataToSend = { key: key, id: null };
+      $.ajax({
+        url: "./setTxOverride",
+        type: "GET",
+        data: dataToSend,
+      }).done(function() {
+        tuneTo(Number(getCurrentFreq()));
+      });
+    });
+
     initCanvas();
     initTooltips();
 });
@@ -925,11 +960,14 @@ function throttle(fn, wait) {
     return wrapper;
 }
 
+let selectedAltTxId = null;
+
 function buildAltTxList(txList) {
+    const key = txList[0].freq.toFixed(1)+txList[0].pi;
     let outString = '';
     for (let i = 0; i < txList.length; i++) {
         const tx = txList[i];
-        outString += `<div class="panel-100-real m-0 hover-brighten no-bg-phone m-0 br-0 p-10" style="min-height: 72px;padding-left: 20px;">
+        outString += `<div class="panel-100-real alt-tx-item m-0 hover-brighten no-bg-phone m-0 br-0 p-10${tx.id === selectedAltTxId ? ' alt-tx-selected' : ''}" data-key="${key}" data-id="${tx.id}" style="min-height: 72px;padding-left: 20px;">
               <div id="data-station-container-${i}" style="display: block;" class="text-left" data-score="${tx.score}">
                 <h2 style="margin-top: 0;" class="mb-0">
                   <span id="data-station-name-${i}">${tx.station.replace("R.", "Radio ").replace(/%/g, '%25')}</span>
@@ -1022,7 +1060,7 @@ const updateDataElements = throttle(function(parsedData) {
     }
 
     if (parsedData.txInfo.station.length > 1) {
-        updateTextIfChanged($('#data-station-name'), parsedData.txInfo.station.replace(/%/g, '%25'));
+        updateTextIfChanged($('#data-station-name'), parsedData.txInfo.station.replace("R.", "Radio ").replace(/%/g, '%25'));
         updateTextIfChanged($('#data-station-erp'), parsedData.txInfo.erp);
         updateTextIfChanged($('#data-station-city'), parsedData.txInfo.name);
         updateTextIfChanged($('#data-station-itu'), parsedData.txInfo.itu);

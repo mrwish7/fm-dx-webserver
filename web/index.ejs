@@ -437,6 +437,12 @@
         </div>
         <div id="alternative-txes" class="popup-content text-left flex-container flex-phone flex-column" style="flex: 1;">
         </div>
+        <% if (isAdminAuthenticated) { %>
+        <div class="flex-container flex-center" style="gap: 8px; padding: 8px;">
+          <button class="bg-color-4 tooltip" id="btn-set-override" style="flex: 1; height: 36px;" data-tooltip="Set a manual transmitter override">Set override</button>
+          <button class="bg-color-4 tooltip" id="btn-clear-override" style="flex: 1; height: 36px;" data-tooltip="Clear the manual transmitter override">Clear override</button>
+        </div>
+        <% } %>
       </div>
     </div>
 
