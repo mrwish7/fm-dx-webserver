@@ -280,12 +280,6 @@ $(document).ready(function () {
         }
     });
 
-    $("#alternative-txes").on("click", ".alt-tx-item", function () {
-      $(".alt-tx-item").removeClass("alt-tx-selected");
-      $(this).addClass("alt-tx-selected");
-      selectedAltTxId = parseInt($(this).data("id"), 10);
-    });
-
     $("#btn-set-override").on("click", function () {
       const $selected = $(".alt-tx-item.alt-tx-selected");
       if (!$selected.length) return;
@@ -963,6 +957,7 @@ function throttle(fn, wait) {
 let selectedAltTxId = null;
 
 function buildAltTxList(txList) {
+    if (!txList.length) return '';
     const key = txList[0].freq.toFixed(1)+txList[0].pi;
     let outString = '';
     for (let i = 0; i < txList.length; i++) {
